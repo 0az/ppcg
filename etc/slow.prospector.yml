@@ -1,0 +1,8 @@
+inherits:
+  - fast.prospector
+
+pep8:
+  run: true
+
+pylint:
+  run: true

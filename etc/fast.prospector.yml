@@ -1,0 +1,27 @@
+# inherits:
+#   - strictness_high
+
+autodetect: false
+ignore-paths:
+  - .venv
+  - venv
+strictness: high
+
+doc-warnings: false
+test-warnings: true
+
+mypy:
+  # We run MyPy using mypyd
+  run: false
+
+pep8:
+  run: false
+
+pylint:
+  run: false
+
+pyroma:
+  run: true
+
+vulture:
+  run: true
