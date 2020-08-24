@@ -14,7 +14,18 @@ class SpanType(Enum):
     IMPORT = auto()
 
 
-LC_PRAGMAS = '_LC_EXPORT_', '_LC_ENTRYPOINT_', '_LC_SPEC_'
+@dataclass
+class Pragma:
+    name: str
+    required: bool = True
+
+
+_pragmas = (
+    Pragma('export'),
+    Pragma('entrypoint'),
+    Pragma('spec', required=False),
+)
+LC_PRAGMAS = {f'_LC_{pragma.name.upper()}_': pragma for pragma in _pragmas}
 
 LC_TEMPLATE = '''
 class Solution:
@@ -43,7 +54,7 @@ class LeetcodeSolution:
             #     assign_node: Union[ast.Assign, ast.AugAssign, ast.AnnAssign]
             if isinstance(node, ast.Assign):
                 assign_node: ast.Assign = node
-                entrypoints: List[ast.Name] = assign_node.entrypoints  # type: ignore[assignment]
+                entrypoints: List[ast.Name] = assign_node.targets  # type: ignore[assignment]
                 lhs = ', '.join(entrypoint.id for entrypoint in entrypoints)
                 if lhs.startswith('_LC_') and lhs.endswith('_'):
                     rhs = ast.literal_eval(assign_node.value)
@@ -75,23 +86,26 @@ class LeetcodeSolution:
             elif isinstance(node, ast.Import):
                 i_node: ast.Import = node
                 for alias in i_node.names:
-                    if alias == 'pytest':
+                    if alias.name == 'pytest':
                         break
                 else:
                     continue
 
-                span.append(SpanType.IMPORT, node.lineno, node.end_lineno)
+                spans.append((SpanType.IMPORT, node.lineno, node.end_lineno))
 
             elif isinstance(node, ast.ImportFrom):
                 i_node: ast.ImportFrom = node
                 if not i_node.module.startswith('pytest'):
                     continue
 
-                span.append(SpanType.IMPORT, node.lineno, node.end_lineno)
+                spans.append((SpanType.IMPORT, node.lineno, node.end_lineno))
 
         # END BODY LOOP
 
-        missing = check_keys(data, LC_PRAGMAS)
+        missing = check_keys(
+            data,
+            (key for key, pragma in LC_PRAGMAS.items() if pragma.required),
+        )
         if missing:
             raise ValueError(
                 'Missing required pragma: {}'.format(', '.join(missing))
