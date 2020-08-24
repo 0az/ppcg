@@ -29,6 +29,18 @@ vulture = '~1.5'
 line-length = 80
 skip-string-normalization = true
 
+[tool.pytest.ini_options]
+python_files = [
+  'lc*.py',
+]
+testpaths = [
+  'src/leetcode',
+]
+
+console_output_style = 'count'
+empty_parameter_set_mark = 'xfail'
+xfail_strict = true
+
 # Misc
 
 [tool.poetry.scripts]
