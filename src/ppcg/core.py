@@ -44,7 +44,7 @@ class LeetcodeSolution:
                 assign_node: ast.Assign = node
                 targets: List[ast.Name] = assign_node.targets  # type: ignore[assignment]
                 lhs = ', '.join(target.id for target in targets)
-                if lhs in LC_PRAGMAS:
+                if lhs.startswith('_LC_') and lhs.endswith('_'):
                     rhs = ast.literal_eval(assign_node.value)
                     data[lhs] = rhs
                     spans.append(
@@ -81,7 +81,7 @@ class LeetcodeSolution:
             content=content,
             entrypoint=data['_LC_ENTRYPOINT_'],
             target=data['_LC_TARGET_'],
-            specs=data['_LC_SPEC_'],
+            specs=data.get('_LC_SPEC_', []),
             spans=spans,
         )
 
