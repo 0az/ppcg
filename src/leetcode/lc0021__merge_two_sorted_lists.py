@@ -61,7 +61,7 @@ class Solution:
         return start
 
 
-def test(s, l1, l2):
+def _test(s, l1, l2):
     left, right = ListNode.from_list(l1), ListNode.from_list(l2)
     print(str(left), str(right))
     result = s.mergeTwoLists(left, right)
@@ -72,4 +72,4 @@ def test(s, l1, l2):
 
 
 if __name__ == "__main__":
-    test(Solution(), [1, 2, 4], [1, 3, 4])
+    _test(Solution(), [1, 2, 4], [1, 3, 4])
