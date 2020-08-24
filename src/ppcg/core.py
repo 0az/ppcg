@@ -13,19 +13,19 @@ class SpanType(Enum):
     TEST = auto()
 
 
-LC_PRAGMAS = '_LC_ENTRYPOINT_', '_LC_TARGET_', '_LC_SPEC_'
+LC_PRAGMAS = '_LC_EXPORT_', '_LC_ENTRYPOINT_', '_LC_SPEC_'
 
 LC_TEMPLATE = '''
 class Solution:
-    {target} = staticmethod({entrypoint})
+    {entrypoint} = staticmethod({export})
 '''
 
 
 @dataclass
 class LeetcodeSolution:
     content: str
+    export: str
     entrypoint: str
-    target: str
     specs: List[str]
     spans: List[Tuple[SpanType, int, int]]
 
@@ -42,8 +42,8 @@ class LeetcodeSolution:
             #     assign_node: Union[ast.Assign, ast.AugAssign, ast.AnnAssign]
             if isinstance(node, ast.Assign):
                 assign_node: ast.Assign = node
-                targets: List[ast.Name] = assign_node.targets  # type: ignore[assignment]
-                lhs = ', '.join(target.id for target in targets)
+                entrypoints: List[ast.Name] = assign_node.entrypoints  # type: ignore[assignment]
+                lhs = ', '.join(entrypoint.id for entrypoint in entrypoints)
                 if lhs.startswith('_LC_') and lhs.endswith('_'):
                     rhs = ast.literal_eval(assign_node.value)
                     data[lhs] = rhs
@@ -79,15 +79,15 @@ class LeetcodeSolution:
 
         return cls(
             content=content,
+            export=data['_LC_EXPORT_'],
             entrypoint=data['_LC_ENTRYPOINT_'],
-            target=data['_LC_TARGET_'],
             specs=data.get('_LC_SPEC_', []),
             spans=spans,
         )
 
     def _adapter(self):
         return LC_TEMPLATE.format(
-            target=self.target, entrypoint=self.entrypoint
+            entrypoint=self.entrypoint, export=self.export
         )
 
     def serialize(self, pragmas=True, tests=True, adapter=False) -> str:
