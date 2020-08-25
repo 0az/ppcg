@@ -20,11 +20,11 @@ def print_help() -> int:
 
 
 def _command_print(*argv) -> Tuple[str, int]:
-    if len(argv) != 3:
+    if len(argv) != 1:
         print_help()
         return '', 1
 
-    solution = Path(argv[2])
+    solution = Path(argv[0])
 
     if not solution.exists():
         print(f'Solution {solution} not found', file=sys.stderr)
