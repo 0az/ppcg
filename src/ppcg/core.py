@@ -57,8 +57,6 @@ class LeetcodeSolution:
                 entrypoints: List[ast.Name] = assign_node.targets  # type: ignore[assignment]
                 lhs = ', '.join(entrypoint.id for entrypoint in entrypoints)
                 if lhs.startswith('_LC_') and lhs.endswith('_'):
-                    rhs = ast.literal_eval(assign_node.value)
-                    data[lhs] = rhs
                     spans.append(
                         (
                             SpanType.PRAGMA,
@@ -66,6 +64,11 @@ class LeetcodeSolution:
                             node.end_lineno or node.lineno,
                         )
                     )
+                    try:
+                        rhs = ast.literal_eval(assign_node.value)
+                        data[lhs] = rhs
+                    except ValueError:
+                        pass
 
             elif isinstance(node, ast.FunctionDef):
                 f_node: ast.FunctionDef = node
@@ -91,14 +94,28 @@ class LeetcodeSolution:
                 else:
                     continue
 
-                spans.append((SpanType.IMPORT, node.lineno, node.end_lineno))
+                spans.append(
+                    (
+                        SpanType.IMPORT,
+                        node.lineno,
+                        node.end_lineno or node.lineno,
+                    )
+                )
 
             elif isinstance(node, ast.ImportFrom):
-                i_node: ast.ImportFrom = node
-                if not i_node.module.startswith('pytest'):
+                if_node: ast.ImportFrom = node
+                if not if_node.module or not if_node.module.startswith(
+                    'pytest'
+                ):
                     continue
 
-                spans.append((SpanType.IMPORT, node.lineno, node.end_lineno))
+                spans.append(
+                    (
+                        SpanType.IMPORT,
+                        node.lineno,
+                        node.end_lineno or node.lineno,
+                    )
+                )
 
         # END BODY LOOP
 
