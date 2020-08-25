@@ -31,7 +31,11 @@ def _command_print(*argv) -> Tuple[str, int]:
         return '', 1
 
     result = LeetcodeSolution.parse(solution).serialize(
-        pragmas=False, tests=False, adapter=True
+        imports=False,
+        pragmas=False,
+        tests=False,
+        adapter=True,
+        #
     )
 
     return result, 0

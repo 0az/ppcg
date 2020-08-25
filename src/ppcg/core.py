@@ -11,6 +11,7 @@ from .utils import check_keys, format_contents
 class SpanType(Enum):
     PRAGMA = auto()
     TEST = auto()
+    IMPORT = auto()
 
 
 LC_PRAGMAS = '_LC_EXPORT_', '_LC_ENTRYPOINT_', '_LC_SPEC_'
@@ -69,6 +70,25 @@ class LeetcodeSolution:
                 spans.append(
                     (SpanType.TEST, span_start, node.end_lineno or node.lineno)
                 )
+
+            # Generalize skip logic
+            elif isinstance(node, ast.Import):
+                i_node: ast.Import = node
+                for alias in i_node.names:
+                    if alias == 'pytest':
+                        break
+                else:
+                    continue
+
+                span.append(SpanType.IMPORT, node.lineno, node.end_lineno)
+
+            elif isinstance(node, ast.ImportFrom):
+                i_node: ast.ImportFrom = node
+                if not i_node.module.startswith('pytest'):
+                    continue
+
+                span.append(SpanType.IMPORT, node.lineno, node.end_lineno)
+
         # END BODY LOOP
 
         missing = check_keys(data, LC_PRAGMAS)
@@ -90,11 +110,15 @@ class LeetcodeSolution:
             entrypoint=self.entrypoint, export=self.export
         )
 
-    def serialize(self, pragmas=True, tests=True, adapter=False) -> str:
+    def serialize(
+        self, imports=True, pragmas=True, tests=True, adapter=False
+    ) -> str:
         # List[Tuple[SpanType, int, int]]: (type, start, end)
         # Non-overlapping spans of lines to remove, inclusive
         # 1-based numbering
         cats = set()
+        if not imports:
+            cats.add(SpanType.IMPORT)
         if not pragmas:
             cats.add(SpanType.PRAGMA)
         if not tests:
