@@ -1,4 +1,5 @@
 from threading import Event
+from typing import Callable
 
 
 class FooBar:

@@ -1,4 +1,5 @@
 from threading import Condition
+from typing import Callable
 
 
 class Foo:
