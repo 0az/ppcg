@@ -1,36 +1,11 @@
 import ast
 from dataclasses import dataclass
-from enum import Enum, auto
 from itertools import compress
 from pathlib import Path
 from typing import List, Tuple
 
+from .constants import LC_PRAGMAS, LC_SKIP_IMPORTS, LC_TEMPLATE, SpanType
 from .utils import check_keys, format_contents
-
-
-class SpanType(Enum):
-    PRAGMA = auto()
-    TEST = auto()
-    IMPORT = auto()
-
-
-@dataclass
-class Pragma:
-    name: str
-    required: bool = True
-
-
-_pragmas = (
-    Pragma('export'),
-    Pragma('entrypoint'),
-    Pragma('spec', required=False),
-)
-LC_PRAGMAS = {f'_LC_{pragma.name.upper()}_': pragma for pragma in _pragmas}
-
-LC_TEMPLATE = '''
-class Solution:
-    {entrypoint} = staticmethod({export})
-'''
 
 
 @dataclass
@@ -89,7 +64,7 @@ class LeetcodeSolution:
             elif isinstance(node, ast.Import):
                 i_node: ast.Import = node
                 for alias in i_node.names:
-                    if alias.name == 'pytest':
+                    if alias.name in LC_SKIP_IMPORTS:
                         break
                 else:
                     continue
