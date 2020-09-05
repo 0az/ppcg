@@ -1,10 +1,5 @@
 """
 Solution for LC0055: Jump Game (Medium).
-
-Given an array of non-negative integers, you are initially positioned at the
-first index of the array. Each element in the array represents your maximum
-jump length at that position. Determine if you are able to reach the last
-index.
 """
 
 from typing import List
@@ -17,7 +12,12 @@ _LC_CASES_ = [
     case(True, [2, 3, 1, 1, 4]),
     case(False, [3, 2, 1, 0, 4]),
 ]
-
+_LC_DESCRIPTION_ = '''
+Given an array of non-negative integers, you are initially positioned
+at the first index of the array. Each element in the array represents
+your maximum jump length at that position. Determine if you are able
+to reach the last index.
+'''
 
 
 def jump_game_reverse(board: List[int]) -> bool:
