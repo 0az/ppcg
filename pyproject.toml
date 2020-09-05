@@ -23,9 +23,6 @@ pyroma = '^2.6'
 pytest = '^6.0.1'
 vulture = '~1.5'
 
-[tool.poetry.plugins."pytest11"]
-ppcg = 'ppcg.pytest_plugin'
-
 # Tool config
 
 [tool.black]
@@ -48,6 +45,9 @@ xfail_strict = true
 
 [tool.poetry.scripts]
 ppcg = 'ppcg.cli:main'
+
+[tool.poetry.plugins."pytest11"]
+ppcg = 'ppcg.pytest_plugin'
 
 [build-system]
 requires = ['poetry>=0.12']
