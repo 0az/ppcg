@@ -79,9 +79,10 @@ class LeetcodeSolution:
 
             elif isinstance(node, ast.ImportFrom):
                 if_node: ast.ImportFrom = node
-                if not if_node.module or not if_node.module.startswith(
-                    'pytest'
-                ):
+                if not if_node.module:
+                    continue
+                first_part = if_node.module.split('.')[0]
+                if first_part not in LC_SKIP_IMPORTS:
                     continue
 
                 spans.append(

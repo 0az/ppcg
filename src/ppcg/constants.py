@@ -26,4 +26,11 @@ class Solution:
     {entrypoint} = staticmethod({export})
 '''
 
-LC_SKIP_IMPORTS = frozenset(('pytest', 'ppcg'))
+LC_SKIP_IMPORTS = frozenset(
+    (
+        'hypothesis',
+        'pytest',
+        #
+        'ppcg',
+    )
+)
