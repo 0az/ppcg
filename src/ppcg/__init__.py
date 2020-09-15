@@ -1,6 +1,6 @@
 import pytest
 
-from .case import Case, case
+from ._public import Case, case
 
 __all__ = [
     'Case',

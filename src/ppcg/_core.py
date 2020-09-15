@@ -4,7 +4,7 @@ from itertools import compress
 from pathlib import Path
 from typing import List, Tuple
 
-from .constants import LC_PRAGMAS, LC_SKIP_IMPORTS, LC_TEMPLATE, SpanType
+from ._constants import LC_PRAGMAS, LC_SKIP_IMPORTS, LC_TEMPLATE, SpanType
 from .utils import check_keys, format_contents
 
 

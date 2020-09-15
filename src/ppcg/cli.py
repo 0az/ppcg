@@ -4,7 +4,7 @@ from typing import Tuple
 
 import pyperclip
 
-from .core import LeetcodeSolution
+from ._core import LeetcodeSolution
 
 HELP = '''
 Usage:
