@@ -16,7 +16,7 @@ import attr
 import pytest
 from _pytest._code.code import FormattedExcinfo
 
-from ._public import Case
+from .._public import Case
 
 if TYPE_CHECKING:
     from _pytest._code import ExceptionInfo
