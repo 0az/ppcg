@@ -1,9 +1,11 @@
-from typing import List
+from typing import List, Tuple
 
-from hypothesis import example, given
-from hypothesis import strategies as st
+import hypothesis.strategies as st
+import pytest
+from hypothesis import given
 
 from ppcg import case
+from ppcg.typing import Callable
 
 _LC_ENTRYPOINT_ = 'subsets'
 _LC_EXPORT_ = 'power_set'
@@ -15,13 +17,28 @@ Note: The solution set must not contain duplicate subsets.
 '''
 
 
-def power_set(lst: List[int]):
+def power_set(lst: List[int]) -> List[Tuple[int, ...]]:
     alphabet = lst
     result = []
 
     for i in range(2 ** len(alphabet)):
         tmp = [e for j, e in enumerate(alphabet) if i & (1 << j)]
         result.append(tmp)
+
+    return result
+
+
+def power_set_with_backtracking(lst: List[int]) -> List[Tuple[int, ...]]:
+    alphabet = lst
+    result = [()]
+
+    for e in alphabet:
+        length = len(result)
+
+        # Can't iterate and mutate
+        for j in range(length):
+            result.append(result[j] + (e,))
+
     return result
 
 
@@ -35,7 +52,20 @@ def reference_power_set(lst: List[int]):
     )
 
 
+@pytest.mark.parametrize(
+    'fn',
+    [
+        power_set,
+        power_set_with_backtracking,
+        #
+    ],
+)
 @given(st.builds(sorted, st.sets(st.integers(), max_size=10)))
-def test_power_set(lst: List[int]):
-    l = sorted(tuple(s) for s in power_set(lst))
-    assert l == reference_power_set(lst)
+def test_power_set(
+    fn: Callable[[List[int]], List[Tuple[int, ...]]],
+    lst: List[int],
+    #
+):
+    result = sorted(tuple(s) for s in fn(lst))
+
+    assert result == reference_power_set(lst)
