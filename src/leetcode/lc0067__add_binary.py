@@ -1,15 +1,15 @@
-"""
-Add two numbers, encoded as binary strings.
-"""
-
 from hypothesis import assume, given
 from hypothesis.strategies import from_regex
 
-_LC_EXPORT_ = 'add_binary'
 _LC_ENTRYPOINT_ = 'addBinary'
+_LC_EXPORT_ = 'add_binary'
+
+_LC_DESCRIPTION_ = '''
+Add two numbers, encoded as binary strings.
+'''
 
 
-def add_binary(left: str, right: str):
+def add_binary(left: str, right: str) -> str:
     diff = len(left) - len(right)
 
     if diff < 0:
@@ -19,7 +19,7 @@ def add_binary(left: str, right: str):
     result = []
     carry = False
 
-    for i, (l, r) in enumerate(zip(reversed(left), reversed(right))):
+    for (l, r) in zip(reversed(left), reversed(right)):
         if l == r:
             result.append(carry)
             carry = l == '1'
@@ -35,7 +35,7 @@ def add_binary(left: str, right: str):
             carry = False
 
     if diff:
-        for c in left[diff - 1 :: -1]:  # range(diff - 1, -1, -1):
+        for c in left[diff - 1 :: -1]:
             if carry and c == '1':
                 result.append(False)
                 carry = True
@@ -48,6 +48,7 @@ def add_binary(left: str, right: str):
 
     if carry:
         result.append(True)
+
     return ''.join(map(str, map(int, reversed(result))))
 
 
@@ -59,7 +60,7 @@ def reference_add_binary(left: str, right: str) -> str:
     from_regex(f'1[01]*|0', fullmatch=True),
     from_regex(f'1[01]*|0', fullmatch=True),
 )
-def test_add_binary(left: str, right: str):
+def test_add_binary(left: str, right: str) -> None:
     assert (left, right) and add_binary(left, right) == reference_add_binary(
         left, right
     )
