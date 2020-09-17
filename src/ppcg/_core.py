@@ -135,7 +135,7 @@ class LeetcodeSolution:
                     else:
                         imports[alias.name] = alias.name
 
-                    if alias.name in LC_SKIP_IMPORTS:
+                    if alias.name.split('.')[0] in LC_SKIP_IMPORTS:
                         break
                 else:
                     continue
