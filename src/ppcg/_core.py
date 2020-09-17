@@ -159,9 +159,13 @@ class LeetcodeSolution:
 
                     for alias in if_node.names:
                         if alias.asname:
-                            imports[alias.name] = f'{if_node.module}.{alias.asname}'
+                            imports[alias.name] = (
+                                f'{if_node.module}.{alias.asname}'
+                            )
                         else:
-                            imports[alias.name] = f'{if_node.module}.{alias.name}'
+                            imports[alias.name] = (
+                                f'{if_node.module}.{alias.name}'
+                            )
 
                         if alias.name in LC_SKIP_IMPORTS:
                             break
