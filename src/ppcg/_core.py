@@ -154,18 +154,21 @@ class LeetcodeSolution:
                 if not if_node.module:
                     continue
 
-                for alias in if_node.names:
-                    if alias.asname:
-                        imports[alias.name] = f'{if_node.module}.{alias.asname}'
-                    else:
-                        imports[alias.name] = f'{if_node.module}.{alias.name}'
+                # HACK: Leetcode doesn't like __future__ imports
+                if not if_node.module == '__future__':
 
-                    if alias.name in LC_SKIP_IMPORTS:
-                        break
+                    for alias in if_node.names:
+                        if alias.asname:
+                            imports[alias.name] = f'{if_node.module}.{alias.asname}'
+                        else:
+                            imports[alias.name] = f'{if_node.module}.{alias.name}'
 
-                first_part = if_node.module.split('.')[0]
-                if first_part not in LC_SKIP_IMPORTS:
-                    continue
+                        if alias.name in LC_SKIP_IMPORTS:
+                            break
+
+                    first_part = if_node.module.split('.')[0]
+                    if first_part not in LC_SKIP_IMPORTS:
+                        continue
 
                 spans.append(
                     (
