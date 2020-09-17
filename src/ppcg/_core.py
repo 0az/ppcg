@@ -31,9 +31,10 @@ def extract_decorator_info(
     names: List[str] = []
 
     for deco_expr in node.decorator_list:
-        if isinstance(deco_expr, ast.Name):
-            name: ast.Name = deco_expr
-            names.append(DecoratorInfo(name.id, name.lineno, name.end_lineno))
+        if isinstance(deco_expr, ast.Attribute):
+            if isinstance(deco_expr.value, ast.Name):
+                name: ast.Name = deco_expr.value
+                names.append(DecoratorInfo(name.id, name.lineno, name.end_lineno))
         # TODO: Add support for Calls
 
     return names
@@ -131,7 +132,7 @@ class LeetcodeSolution:
 
                 for alias in i_node.names:
                     if alias.asname:
-                        imports[alias.name] = alias.asname
+                        imports[alias.asname] = alias.name
                     else:
                         imports[alias.name] = alias.name
 
