@@ -22,7 +22,7 @@ def power_set(lst: List[int]) -> List[Tuple[int, ...]]:
     result = []
 
     for i in range(2 ** len(alphabet)):
-        tmp = [e for j, e in enumerate(alphabet) if i & (1 << j)]
+        tmp = tuple(e for j, e in enumerate(alphabet) if i & (1 << j))
         result.append(tmp)
 
     return result
@@ -30,7 +30,7 @@ def power_set(lst: List[int]) -> List[Tuple[int, ...]]:
 
 def power_set_with_backtracking(lst: List[int]) -> List[Tuple[int, ...]]:
     alphabet = lst
-    result = [()]
+    result: List[Tuple[int, ...]] = [()]
 
     for e in alphabet:
         length = len(result)
@@ -52,7 +52,7 @@ def reference_power_set(lst: List[int]):
     )
 
 
-@pytest.mark.parametrize(
+@pytest.mark.parametrize(  # type: ignore[misc]
     'fn',
     [
         power_set,

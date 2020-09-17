@@ -1,4 +1,5 @@
 from threading import Condition
+from typing import Callable
 
 
 class FooBar:
@@ -7,7 +8,7 @@ class FooBar:
         self.state = 0
         self.state_cv = Condition()
 
-    def foo(self, printFoo: "Callable[[], None]") -> None:
+    def foo(self, printFoo: Callable[[], None]) -> None:
 
         for i in range(self.n):
 
@@ -20,7 +21,7 @@ class FooBar:
                 self.state += 1
                 self.state_cv.notify_all()
 
-    def bar(self, printBar: "Callable[[], None]") -> None:
+    def bar(self, printBar: Callable[[], None]) -> None:
 
         for i in range(self.n):
 

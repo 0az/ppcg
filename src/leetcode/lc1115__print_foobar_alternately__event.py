@@ -9,7 +9,7 @@ class FooBar:
         self.event_bar = Event()
         self.event_foo.set()
 
-    def foo(self, printFoo: "Callable[[], None]") -> None:
+    def foo(self, printFoo: Callable[[], None]) -> None:
 
         for i in range(self.n):
 
@@ -21,7 +21,7 @@ class FooBar:
             self.event_foo.clear()
             self.event_bar.set()
 
-    def bar(self, printBar: "Callable[[], None]") -> None:
+    def bar(self, printBar: Callable[[], None]) -> None:
 
         for i in range(self.n):
 

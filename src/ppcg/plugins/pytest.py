@@ -8,8 +8,10 @@ from typing import (
     Dict,
     Generic,
     List,
+    Optional,
     Tuple,
     TypeVar,
+    Union,
 )
 
 import attr
@@ -20,7 +22,11 @@ from .._public import Case
 
 if TYPE_CHECKING:
     from _pytest._code import ExceptionInfo
-    from _pytest._code.code import ExceptionChainRepr
+    from _pytest._code.code import (
+        ExceptionChainRepr,
+        TerminalRepr,
+        _TracebackStyle,
+    )
     from _pytest.python import Metafunc
 
 T = TypeVar('T')
@@ -32,8 +38,8 @@ def expect_call(
     args: Tuple[Any, ...],
     kwargs: Dict[str, Any],
     #
-    expected: T,
-):
+    expected: Optional[T],
+) -> None:
     """
     Assert that a call returns an expected value.
     """
@@ -81,7 +87,7 @@ class ReprWrapper(Generic[F]):
     wrapped: F
     repr: str
 
-    def __call__(self, *args, **kwargs) -> T:
+    def __call__(self, *args: Any, **kwargs: Any) -> T:
         return self.wrapped(*args, **kwargs)
 
     def __repr__(self):
@@ -89,14 +95,17 @@ class ReprWrapper(Generic[F]):
 
 
 class TrimmedExceptionInfo(FormattedExcinfo):
-    def repr_excinfo(self, excinfo):
+    def repr_excinfo(self, excinfo: Any) -> ExceptionChainRepr:
         repr_: ExceptionChainRepr = super().repr_excinfo(excinfo)
         return attr.evolve(repr_, chain=repr_.chain[0])
 
 
 class LcModule(pytest.Collector):
     def __init__(
-        self, name: str = 'cases', parent: pytest.Collector = None, **kwargs
+        self,
+        name: str = 'cases',
+        parent: pytest.Collector = None,
+        **kwargs: Any
     ):
         super().__init__(name='cases', parent=parent, **kwargs)
         self.module = parent
@@ -125,8 +134,9 @@ class LcModule(pytest.Collector):
 class SolutionCaseItem(pytest.Item):
     def __init__(
         self,
-        name,
-        parent,
+        name: str,
+        # FIXME: Fix this type
+        parent: Any,
         #
         solution: Callable[..., T],
         solution_name: str,
@@ -152,7 +162,9 @@ class SolutionCaseItem(pytest.Item):
             self.expected,
         )
 
-    def repr_failure(self, excinfo: ExceptionInfo, style=None):
+    def repr_failure(
+        self, excinfo: ExceptionInfo, style: _TracebackStyle = None
+    ) -> Union[str, TerminalRepr, ExceptionChainRepr]:
         if excinfo.errisinstance(AssertionError):
             return excinfo.exconly(True)
 
@@ -162,7 +174,7 @@ class SolutionCaseItem(pytest.Item):
         # HACK
         fmt = TrimmedExceptionInfo(
             showlocals=self.config.getoption('showlocals', False),
-            style=style,
+            style=style or 'auto',
             tbfilter=not self.config.getoption('fulltrace', False),
             # chain=False,
         )

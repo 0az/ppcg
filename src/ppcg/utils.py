@@ -1,6 +1,6 @@
 from os import PathLike
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Iterable, List
 
 import black
 import toml
@@ -39,7 +39,7 @@ def format_contents(s: str) -> str:
         return s
 
 
-def check_keys(data: Dict[str, Any], keys):
+def check_keys(data: Dict[str, Any], keys: Iterable[str]) -> List[str]:
     missing = []
     for key in keys:
         if data.get(key) is None:

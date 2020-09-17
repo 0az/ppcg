@@ -32,7 +32,7 @@ def power_set_with_sets(lst: List[int]) -> Set[Tuple[int, ...]]:
 
 
 def power_set_backtracking(lst: List[int]) -> List[Tuple[int, ...]]:
-    result = [()]
+    result: List[Tuple[int, ...]] = [()]
     alphabet = sorted(lst)
 
     length = len(result)
@@ -61,7 +61,7 @@ def reference_power_set(lst: List[int]) -> List[Tuple[int, ...]]:
     )
 
 
-@pytest.mark.parametrize(
+@pytest.mark.parametrize(  # type: ignore[misc]
     'fn',
     [
         power_set_with_sets,
