@@ -31,3 +31,10 @@ def case(expected=None, /, *args, **kwargs):
     Create a test case.
     """
     return Case(expected, args, kwargs)
+
+
+def omit(obj: T) -> T:
+    """
+    Omit a class or function when generating code.
+    """
+    return obj

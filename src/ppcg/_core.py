@@ -2,10 +2,41 @@ import ast
 from dataclasses import dataclass
 from itertools import compress
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, NamedTuple, Tuple, Union
 
 from ._constants import LC_PRAGMAS, LC_SKIP_IMPORTS, LC_TEMPLATE, SpanType
 from .utils import check_keys, format_contents
+
+
+class DecoratorInfo(NamedTuple):
+    """
+    Decorator information.
+
+    Attrs:
+        name: A string identifying the decorator. Not guaranteed to represent
+            the entire decorator.
+        lineno: The first line of the decorator
+        end_lineno: The final line of the decorator
+    """
+
+    name: str
+    lineno: int
+    end_lineno: int
+
+
+def extract_decorator_info(
+    node: Union[ast.ClassDef, ast.FunctionDef]
+) -> List[DecoratorInfo]:
+    # FIXME: Add support for PEP-614
+    names: List[str] = []
+
+    for deco_expr in node.decorator_list:
+        if isinstance(deco_expr, ast.Name):
+            name: ast.Name = deco_expr
+            names.append(DecoratorInfo(name.id, name.lineno, name.end_lineno))
+        # TODO: Add support for Calls
+
+    return names
 
 
 @dataclass
@@ -22,6 +53,7 @@ class LeetcodeSolution:
         tree = ast.parse(content)
         data = {}
         spans: List[Tuple[SpanType, int, int]] = []
+        imports = {}
 
         for node in tree.body:
             # FIXME: Generalize the ast parsing
@@ -48,7 +80,16 @@ class LeetcodeSolution:
             elif isinstance(node, ast.FunctionDef):
                 f_node: ast.FunctionDef = node
 
-                if not f_node.name.startswith('test'):
+                skip = f_node.name.startswith('test')
+                decos = extract_decorator_info(f_node)
+
+                for deco in decos:
+                    package = imports[deco.name].split('.')[0]
+                    if package in LC_SKIP_IMPORTS:
+                        skip = True
+                        break
+
+                if not skip:
                     continue
 
                 span_start = f_node.lineno
@@ -56,14 +97,44 @@ class LeetcodeSolution:
                 for deco in f_node.decorator_list:
                     if deco.lineno < span_start:
                         span_start = deco.lineno
+
                 spans.append(
                     (SpanType.TEST, span_start, node.end_lineno or node.lineno)
                 )
 
+            elif isinstance(node, ast.ClassDef):
+                c_node: ast.ClassDef = node
+                skip = False
+
+                decos = extract_decorator_info(c_node)
+                for deco in decos:
+                    package = imports[deco.name].split('.')[0]
+                    if package in LC_SKIP_IMPORTS:
+                        skip = True
+                        break
+
+                if not skip:
+                    continue
+
+                span_start = c_node.lineno
+
+                for deco in c_node.decorator_list:
+                    if deco.lineno < span_start:
+                        span_start = deco.lineno
+
+                spans.append(
+                    (SpanType.TEST, span_start, node.end_lineno or node.lineno)
+                )
             # Generalize skip logic
             elif isinstance(node, ast.Import):
                 i_node: ast.Import = node
+
                 for alias in i_node.names:
+                    if alias.asname:
+                        imports[alias.name] = alias.asname
+                    else:
+                        imports[alias.name] = alias.name
+
                     if alias.name in LC_SKIP_IMPORTS:
                         break
                 else:
@@ -79,8 +150,19 @@ class LeetcodeSolution:
 
             elif isinstance(node, ast.ImportFrom):
                 if_node: ast.ImportFrom = node
+
                 if not if_node.module:
                     continue
+
+                for alias in if_node.names:
+                    if alias.asname:
+                        imports[alias.name] = f'{if_node.module}.{alias.asname}'
+                    else:
+                        imports[alias.name] = f'{if_node.module}.{alias.name}'
+
+                    if alias.name in LC_SKIP_IMPORTS:
+                        break
+
                 first_part = if_node.module.split('.')[0]
                 if first_part not in LC_SKIP_IMPORTS:
                     continue

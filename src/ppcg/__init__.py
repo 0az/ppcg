@@ -1,10 +1,11 @@
 import pytest
 
-from ._public import Case, case
+from ._public import Case, case, omit
 
 __all__ = [
     'Case',
     'case',
+    'omit',
 ]
 
 
