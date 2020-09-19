@@ -37,6 +37,11 @@ def extract_decorator_info(
                 names.append(
                     DecoratorInfo(name.id, name.lineno, name.end_lineno)
                 )
+        if isinstance(deco_expr, ast.Name):
+            name: ast.Name = deco_expr
+            names.append(
+                DecoratorInfo(name.id, name.lineno, name.end_lineno)
+            )
         # TODO: Add support for Calls
 
     return names
